@@ -1,0 +1,12 @@
+agno
+black
+httpx
+isort
+mistralai
+openai
+pydantic
+pydantic-settings
+pytest-asyncio
+structlog
+tqdm
+typer

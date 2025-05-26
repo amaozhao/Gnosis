@@ -1,0 +1,13 @@
+1
+00:00:01,000 --> 00:00:04,000
+   Hello, this is a test subtitle with leading spaces.   
+
+2
+00:00:05,000 --> 00:00:08,000
+   We are testing the space handling.    
+   This line also has spaces.   
+
+3
+00:00:09,000 --> 00:00:12,000
+This line has no extra spaces.
+   But this one does.   
