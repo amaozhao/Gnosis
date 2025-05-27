@@ -1,0 +1,127 @@
+1  
+00:00:01,000 --> 00:00:03,000  
+Hello, welcome to our show.  
+你好，欢迎来到我们的节目。  
+
+2  
+00:00:03,500 --> 00:00:05,500  
+Today we have a special guest,  
+今天我们有一位特别的嘉宾，  
+
+3  
+00:00:05,600 --> 00:00:07,500  
+John Doe, who is an expert  
+约翰·多伊，他是一位专家  
+
+4  
+00:00:07,600 --> 00:00:09,500  
+in the field of artificial intelligence.  
+人工智能领域的专家。  
+
+5  
+00:00:10,000 --> 00:00:12,000  
+John, can you tell us  
+约翰，你能告诉我们  
+
+6  
+00:00:12,500 --> 00:00:14,500  
+a bit about your background?  
+一些关于你背景的信息吗？  
+
+7  
+00:00:15,000 --> 00:00:17,000  
+Sure, I'd be happy to.  
+当然，我很乐意。  
+
+8  
+00:00:17,500 --> 00:00:19,500  
+I started my career  
+我开始我的职业生涯  
+
+9  
+00:00:19,600 --> 00:00:21,500  
+as a software engineer  
+作为一名软件工程师  
+
+10  
+00:00:21,600 --> 00:00:23,500  
+and then transitioned into AI.  
+然后转向人工智能领域。  
+
+11  
+00:00:24,000 --> 00:00:26,000  
+It's been an incredible journey.  
+这是一段不可思议的旅程。  
+
+12  
+00:00:26,500 --> 00:00:28,500  
+What inspired you to get into AI?  
+是什么激发了你进入人工智能领域的兴趣？  
+
+13  
+00:00:29,000 --> 00:00:31,000  
+I've always been fascinated  
+我一直对机器的潜力感到着迷，  
+
+14  
+00:00:31,500 --> 00:00:33,500  
+by the potential of machines  
+它们能够学习并模仿人类智能。  
+
+15  
+00:00:33,600 --> 00:00:35,500  
+to learn and mimic human intelligence.  
+
+16  
+00:00:36,000 --> 00:00:38,000  
+That's what drove me to explore this field.  
+这就是促使我探索这个领域的原因。  
+
+17  
+00:00:38,500 --> 00:00:40,500  
+What are some of the challenges  
+有哪些挑战  
+
+18  
+00:00:40,600 --> 00:00:42,500  
+you face in your work?  
+是你在工作中面临的？  
+
+19  
+00:00:43,000 --> 00:00:45,000  
+One of the biggest challenges.  
+最大的挑战之一。  
+
+20  
+00:00:45,500 --> 00:00:47,500  
+is the ethical implications  
+是伦理问题  
+
+21  
+00:00:47,600 --> 00:00:49,500  
+of AI development.  
+在人工智能的发展中。  
+
+22  
+00:00:50,000 --> 00:00:52,000  
+We need to ensure that  
+我们需要确保人工智能被负责任地使用，  
+
+23  
+00:00:52,500 --> 00:00:54,500  
+AI is used responsibly  
+并且不侵犯人权。  
+
+24  
+00:00:54,600 --> 00:00:56,500  
+and does not infringe on human rights.  
+
+25  
+00:00:57,000 --> 00:00:59,000  
+Thank you for sharing your insights.  
+谢谢你分享你的见解。  
+
+26  
+00:00:59,500 --> 00:01:01,500  
+You're welcome. It's been a pleasure.  
+不客气。这是我的荣幸。  

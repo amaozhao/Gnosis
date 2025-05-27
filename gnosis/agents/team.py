@@ -72,8 +72,29 @@ class TranslationTeam:
         if not response or not response.content:
             return content
 
+        # 获取响应内容
+        response_content = response.content
+
+        # 检查是否包含字幕格式的内容
+        # 如果不包含任何字幕格式的内容，返回原始内容
+        if not re.search(
+            r"\d+\s*\n\s*\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}",
+            response_content,
+        ):
+            print("\n\n\u8b66告: 翻译响应不包含字幕格式的内容，返回原始内容\n\n")
+            return content
+
         # 过滤掉可能的评分或描述性文字
-        translated_content = self._clean_output(response.content)
+        translated_content = self._clean_output(response_content)
+
+        # 再次检查清理后的内容是否包含字幕格式
+        if not re.search(
+            r"\d+\s*\n\s*\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}",
+            translated_content,
+        ):
+            print("\n\n\u8b66告: 清理后的翻译内容不包含字幕格式，返回原始内容\n\n")
+            return content
+
         return translated_content
 
     async def batch_translate(
@@ -137,9 +158,9 @@ class TranslationTeam:
             # 如果没找到字幕开始的地方，尝试其他清理方法
             skip_line = False
             for line in lines:
-                # 跳过包含评分或评价的行
+                # 跳过包含评分、评价或协调消息的行
                 if re.search(
-                    r"审核评分|翻译质量|分，翻译|评分为|符合要求|以下是|最终翻译|翻译后的|字幕内容|已将|翻译任务|等待|完成|下一步|审核流程",
+                    r"审核评分|翻译质量|分，翻译|评分为|符合要求|以下是|最终翻译|翻译后的|字幕内容|已将|翻译任务|等待|完成|下一步|审核流程|分配给|协调|我会在|收到翻译结果|继续协调|为你完成|已完成|已经完成|我已经|为您完成",
                     line,
                 ):
                     skip_line = True
@@ -147,6 +168,11 @@ class TranslationTeam:
 
                 # 跳过分隔线
                 if re.match(r"^-{3,}$|^={3,}$|^\*{3,}$", line.strip()):
+                    skip_line = True
+                    continue
+
+                # 跳过 markdown 代码块标记
+                if re.match(r"^```.*$", line.strip()):
                     skip_line = True
                     continue
 

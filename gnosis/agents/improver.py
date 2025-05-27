@@ -3,14 +3,14 @@
 """
 
 from agno.agent import Agent
-from agno.models.deepseek import DeepSeek
 
 from gnosis.core.config import settings
+from gnosis.core.models import create_model
 
 improver = Agent(
     name="Improver",
     role="翻译改进专家",
-    model=DeepSeek(api_key=settings.DEEPSEEK_API_KEY),
+    model=create_model(provider=settings.MODEL_PROVIDER),
     markdown=False,
     instructions=[
         "你的任务是根据审核反馈改进翻译结果。",
