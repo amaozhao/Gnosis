@@ -4,9 +4,10 @@
 
 import os
 from pathlib import Path
-from unittest.mock import mock_open, patch
+from unittest.mock import mock_open, patch, AsyncMock, MagicMock
 
 import pytest
+import aiofiles
 
 from gnosis.services.subtitle import SubtitleService
 
@@ -62,13 +63,11 @@ class TestSubtitleService:
         with open(temp_file_path, "w", encoding="utf-8") as f:
             f.write("test content")
 
-        # 模拟打开文件时抛出 UnicodeDecodeError
-        m = mock_open()
-        m.return_value.read.side_effect = UnicodeDecodeError(
+        # 创建正确的模拟对象
+        # 使用 patch 的 side_effect 直接抛出异常
+        with patch("aiofiles.open", side_effect=UnicodeDecodeError(
             "utf-8", b"\x80abc", 0, 1, "invalid start byte"
-        )
-
-        with patch("builtins.open", m):
+        )):
             with pytest.raises(UnicodeDecodeError):
                 await SubtitleService.read_file(temp_file_path)
 
@@ -101,7 +100,13 @@ class TestSubtitleService:
     @pytest.mark.asyncio
     async def test_write_file_permission_error(self, temp_file_path, sample_content):
         """测试写入无权限文件。"""
-        with patch("builtins.open", side_effect=PermissionError("Permission denied")):
+        # 确保目录存在检查不会失败
+        directory = os.path.dirname(temp_file_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+            
+        # 模拟 aiofiles.open 抛出权限错误
+        with patch("aiofiles.open", side_effect=PermissionError("Permission denied")):
             with pytest.raises(PermissionError):
                 await SubtitleService.write_file(sample_content, temp_file_path)
 

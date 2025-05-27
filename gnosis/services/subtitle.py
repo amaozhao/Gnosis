@@ -1,8 +1,10 @@
 """
 文本文件处理服务，提供基本的文件读写功能。
+使用 aiofiles 实现异步文件操作。
 """
 
 import os
+import aiofiles
 from typing import Any, Dict
 
 
@@ -11,7 +13,7 @@ class SubtitleService:
 
     @staticmethod
     async def read_file(file_path: str, encoding: str = "utf-8") -> str:
-        """读取文本文件的内容。
+        """异步读取文本文件的内容。
 
         Args:
             file_path: 文件路径
@@ -34,9 +36,9 @@ class SubtitleService:
             raise PermissionError(f"没有权限读取文件: {file_path}")
 
         try:
-            # 读取文件内容
-            with open(file_path, "r", encoding=encoding) as file:
-                content = file.read()
+            # 异步读取文件内容
+            async with aiofiles.open(file_path, "r", encoding=encoding) as file:
+                content = await file.read()
                 return content
         except UnicodeDecodeError as e:
             raise UnicodeDecodeError(
@@ -47,7 +49,7 @@ class SubtitleService:
 
     @staticmethod
     async def write_file(content: str, file_path: str, encoding: str = "utf-8") -> str:
-        """将内容写入文本文件。
+        """异步将内容写入文本文件。
 
         Args:
             content: 要写入的文本内容
@@ -70,9 +72,9 @@ class SubtitleService:
                 raise OSError(f"无法创建目录: {e}")
 
         try:
-            # 写入文件内容
-            with open(file_path, "w", encoding=encoding) as file:
-                file.write(content)
+            # 异步写入文件内容
+            async with aiofiles.open(file_path, "w", encoding=encoding) as file:
+                await file.write(content)
                 return file_path
         except PermissionError as e:
             raise PermissionError(f"没有权限写入文件: {e}")

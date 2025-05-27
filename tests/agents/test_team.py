@@ -109,12 +109,12 @@ class TestTranslationTeam:
     async def test_translate_with_custom_languages(self, translation_team, mock_team):
         """测试使用自定义语言的翻译方法。"""
         # 设置测试数据
-        content = "This is a test."
+        content = "1\n00:00:01,000 --> 00:00:03,000\nThis is a test."
         source_lang = "fr"
         target_lang = "es"
 
-        # 设置模拟返回值
-        translated_content = "Este es una prueba."
+        # 设置模拟返回值 - 必须是 SRT 格式的内容
+        translated_content = "1\n00:00:01,000 --> 00:00:03,000\nThis is a test.\nEste es una prueba."
 
         mock_response = MagicMock()
         mock_response.content = translated_content
