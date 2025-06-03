@@ -1,0 +1,150 @@
+1
+00:00:00,000 --> 00:00:07,600  
+Welcome to our first practical video on QA. Over the next couple of videos, we're going to focus on setup.
+欢迎来到我们的第一个质量保证实践视频。接下来的几个视频，我们将重点讲解环境搭建。
+
+2
+00:00:07,600 --> 00:00:15,360  
+The first piece of setup is that we need an API key, and we're going to use the OpenAI API.
+搭建的第一步是需要获取API密钥，我们将使用OpenAI的API。
+
+3
+00:00:15,360 --> 00:00:24,160  
+Let me just Google "OpenAI API". This is an overview. We need to go to platform.openai.com.
+让我先谷歌搜索"OpenAI API"。这是概述页面，我们需要访问platform.openai.com。
+
+4
+00:00:24,560 --> 00:00:34,560  
+You need to log in. Creating an account is absolutely free, but you do need to log in to get an API key.
+需要先登录。注册账户完全免费，但必须登录才能获取API密钥。
+
+5
+00:00:34,560 --> 00:00:43,760  
+Let me log in for myself, and I'll show you how to generate an API key.
+我先登录自己的账号，然后给大家演示如何生成API密钥。
+
+6
+00:00:45,040 --> 00:00:52,320  
+It's possible that you might still have a free tier available.
+你可能还有免费额度可以使用。
+
+7
+00:00:52,320 --> 00:00:59,120  
+However, what we're going to do throughout this course won't cost you more than one US dollar.
+不过整个课程的操作花费不会超过1美元。
+
+8
+00:00:59,120 --> 00:01:04,640  
+With the caveat that the minimum credit you can add is five US dollars.
+需要注意的是最低充值金额是5美元。
+
+9
+00:01:06,720 --> 00:01:15,600  
+But seriously, it will cost less than one dollar. Now let me figure this out - I always get lost here.
+但实际花费真的不到1美元。现在我来操作一下——我经常在这里迷路。
+
+10
+00:01:15,600 --> 00:01:21,920  
+This platform keeps getting bigger and bigger. Okay, I would say go to the dashboard.
+这个平台越来越庞大了。好的，我建议先进入控制面板。
+
+11
+00:01:22,479 --> 00:01:34,000  
+Then select API keys, and to create one, click on "Create". Let me name it "AI agent".
+然后选择API密钥，点击"创建"新建一个。我把它命名为"AI代理"。
+
+12
+00:01:35,759 --> 00:01:40,960  
+I'll give it all permissions. It should be your account as well, so this should be okay.
+我会授予全部权限。因为是你们自己的账户，这样设置没问题。
+
+13
+00:01:41,679 --> 00:01:49,039  
+Now it's very important that you copy this key - this is the only time it will be shown.
+现在非常关键的是要复制这个密钥——这是它唯一一次显示。
+
+14
+00:01:49,040 --> 00:01:54,480  
+It appears just once, so you need to copy and store it securely somewhere.
+它只出现一次，所以必须复制并安全保存。
+
+15
+00:01:55,040 --> 00:02:01,440  
+For our purposes, if you haven't already, I'd encourage you to download the AI agents folder.
+建议你们下载AI代理文件夹（如果还没下载的话）。
+
+16
+00:02:02,240 --> 00:02:11,680  
+Then go to "Crew AI job interview prep part one", click on "New", then "More", and select Google Colaboratory.
+然后进入"Crew AI面试准备第一部分"，点击"新建"，选择"更多"，再选Google Colaboratory。
+
+17
+00:02:11,680 --> 00:02:20,480  
+From here we can begin. What I'll do now is click on "Copy".
+从这里我们就可以开始了。我现在要点击"复制"。
+
+18
+00:02:20,480 --> 00:02:27,040
+And like I have already quite a bit, but let me add another secret here. You can see that I have been working on this.
+就像我之前已经展示了不少内容，但让我再添加一个秘密。你们可以看到我一直在处理这个。
+
+19
+00:02:27,040 --> 00:02:36,880
+Let me call it "AI agents, OpenAI". Right. So this will be a key that I'm going to use specifically for this course.
+我把它命名为"AI agents, OpenAI"。好的，这将是我专门为这个课程使用的密钥。
+
+20
+00:02:36,880 --> 00:02:45,600
+I do Ctrl+V to paste it here, and let me hide it here. Then the last piece that one would do is click here.
+我按Ctrl+V粘贴到这里，然后把它隐藏起来。最后一步就是点击这里。
+
+21
+00:02:45,600 --> 00:02:53,440
+This is going to get here the code in order to get a specific API key. For instance, I would come here to "AI agents, OpenAI".
+这里会生成获取特定API密钥的代码。比如说，我会找到这个"AI agents, OpenAI"。
+
+22
+00:02:54,240 --> 00:03:01,680
+I would store it under something. Let's say "OpenAI API key equals to this OpenAI API key".
+我会把它存储为某个变量。比如说"OpenAI API key等于这个OpenAI API密钥"。
+
+23
+00:03:02,480 --> 00:03:15,120
+Let me just add here so we'll focus it on setup. The very basics of things would be okay.
+让我在这里添加一下，这样我们就能专注于设置了。最基础的内容就足够了。
+
+24
+00:03:16,560 --> 00:03:28,880
+Ctrl+Enter and let me come here to secrets at the same time. Currently it's connecting to the script.
+按Ctrl+Enter，同时让我来到secrets这里。现在它正在连接到脚本。
+
+25
+00:03:28,880 --> 00:03:34,720
+You see here "notebook access". What is happening is that all of these secrets are passed from one notebook to the other.
+你们看到这里的"notebook access"。实际上所有这些密钥都会从一个笔记本传递到另一个笔记本。
+
+26
+00:03:34,720 --> 00:03:40,160
+But you do need to activate for that specific notebook. In this case, it's going to prompt you "grant access".
+但你需要为特定笔记本激活。在这里，它会提示你"grant access"。
+
+27
+00:03:40,160 --> 00:03:46,560
+You come to grant access, and then I can see I took way too long. It's okay.
+你点击授权访问，然后我发现我花了太长时间。没关系。
+
+28
+00:03:46,560 --> 00:03:53,440
+I do Ctrl+Enter and here we go. Now we have the OpenAI API key, which is absolutely ready to go.
+我按下Ctrl+Enter，好了。现在我们有了OpenAI API密钥，已经完全准备就绪了。
+
+29
+00:03:54,400 --> 00:04:01,760
+With this, I'm going to stop this video. Let me just give it a title here: "CrewAI job interview prep part one".
+到这里，我要结束这个视频了。让我给它加个标题："CrewAI工作面试准备第一部分"。
+
+30
+00:04:01,760 --> 00:04:11,440
+Here we go. And that is it. I'll see you in the next video.
+好了，就这样。我们下个视频见。
+

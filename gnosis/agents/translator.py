@@ -1,37 +1,25 @@
-"""
-翻译智能体，负责将字幕内容从源语言翻译到目标语言。
-"""
-
+# agents/translator.py
 from agno.agent import Agent
+from agno.models.deepseek import DeepSeek
 
+from gnosis.agents.prompts.instructions import translator_instructions
 from gnosis.core.config import settings
-from gnosis.core.models import create_model
 
-translator = Agent(
-    name="Translator",
-    role="翻译专家",
-    model=create_model(provider=settings.MODEL_PROVIDER),
-    markdown=False,
-    instructions=[
-        (
-            "### 翻译格式\n\n"
-            "1. **必须保留原始英文字幕，英文在上，中文在下。** 在原始英文行的下方添加对应的中文翻译行。\n"
-            "2. **中英文之间必须换行，不能在同一行内。**\n"
-            "3. **当英文字幕有多行时，必须先列出所有英文行，然后再列出对应的中文翻译行。** 例如，如果原始字幕是两行英文，则应该先列出这两行英文，然后再列出对应的两行中文翻译。\n"
-            "4. **必须合并被分割到不同字幕单元中的连续语句。** 如果一个完整的句子被分割到多个字幕单元中，必须将它们在翻译时合并成一个完整的句子。例如，如果一个字幕以“And then”开头，这表示它是上一个字幕的继续，应该将它们合并进行翻译。\n\n"
-            "### 字幕处理\n\n"
-            "1. **去除首尾空格：** 在处理和翻译字幕内容之前，**务必去除每条字幕开头和结尾的所有空格**。\n"
-            "2. **合并截断字幕：** 如果字幕被分割成两条或多条连续的、语义关联的字幕（例如，因原始字幕文件行数限制导致一句完整的话被截断），请**务必将它们合并成一条完整的字幕**后再进行翻译。合并后的字幕应保持逻辑连贯性。\n"
-            "3. **时间戳处理：** **无需修改或合并原始字幕的时间戳。** 即使字幕内容合并，仍保持原始的时间戳结构，每条翻译后的双语字幕都应对应其原始的、独立的时间戳。\n\n"
-            "### 翻译质量与风格\n\n"
-            "1. **中文口语化：** 翻译的中文部分必须**符合中国人的日常口语习惯**。\n"
-            "* **条件句前置：** 特别注意，如果原文中存在条件语句，请将中文翻译中的条件部分（例如“如果…那么…”、“只要…就…”）尽量放在句子的前面，符合中文表达习惯。\n"
-            "* **自然流畅：** 避免生硬的直译，确保中文表达自然、流畅，如同中国人日常对话。\n"
-            "2. **忠实原文：** 在满足口语化要求的前提下，确保中文翻译忠实于英文原文的含义，不增不减信息。"
-        ),
-        "直接返回翻译后的完整字幕内容，不要添加额外的解释或注释。",
-        "必须保留原始英文字幕，并在每个英文行下方添加对应的中文翻译行。中英文之间必须换行。",
-        "对于专业术语或特殊表达，保持其专业性和准确性。",
-        "请确保每一行英文都有对应的中文翻译，不要遗漏任何内容。",
-    ],
+# 直接创建 DeepSeek 模型实例
+translator_model = DeepSeek(
+    api_key=settings.DEEPSEEK_API_KEY,
 )
+
+
+def get_translator():
+    translator = Agent(
+        name="Translator",
+        role="翻译专家",
+        model=translator_model,
+        markdown=False,
+        instructions=translator_instructions,
+        use_json_mode=False,
+        reasoning=False,
+        # debug_mode=True,
+    )
+    return translator

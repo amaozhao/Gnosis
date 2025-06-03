@@ -1,11 +1,11 @@
 """
-Command-line interface for the Gnosis application using the TranslationTeam.
+Gnosis CLI - 字幕翻译工具
+
 使用 Typer 构建的命令行界面，支持字幕翻译功能。
+基于 SubtitleWorkflow 实现字幕文件的翻译处理。
 """
 
 import asyncio
-import os
-from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -13,237 +13,111 @@ import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from gnosis.agents.team import TranslationTeam
-from gnosis.core.config import settings
-from gnosis.services.subtitle import SubtitleService
+from gnosis.agents.workflow import SubtitleWorkflow
 
-# 创建 Typer 应用
-app = typer.Typer(
-    help="Gnosis CLI - 字幕翻译工具",
-    add_completion=True,
-    rich_markup_mode="rich",
-)
-
-# 创建控制台对象，用于美化输出
+app = typer.Typer(help="Gnosis CLI - 字幕翻译工具")
 console = Console()
 
 
-class ModelProvider(str, Enum):
-    """模型提供商枚举类型"""
-
-    MISTRAL = "mistral"
-    OPENAI = "openai"
-    DEEPSEEK = "deepseek"
-    KIMI = "kimi"
-
-
-@app.command("translate")
-async def translate(
-    file: Optional[Path] = typer.Option(
-        None, "--file", "-f", help="File containing text to translate"
-    ),
-    text: Optional[str] = typer.Option(None, "--text", help="Text to translate"),
-    output: Optional[Path] = typer.Option(
-        None, "--output", "-o", help="Output file for translated text"
-    ),
-    source: str = typer.Option("en", "--source", "-s", help="Source language code"),
-    target: str = typer.Option("zh", "--target", "-t", help="Target language code"),
-    model: ModelProvider = typer.Option(
-        ModelProvider.MISTRAL, "--model", "-m", help="Model provider to use"
-    ),
-    debug: bool = typer.Option(False, "--debug", "-d", help="Enable debug mode"),
-    test: bool = typer.Option(
-        False, "--test", help="Run in test mode (skips API calls)"
-    ),
+@app.command("file")
+def trans_file(
+    file: Path = typer.Argument(..., help="SRT文件"),
+    out: Optional[Path] = typer.Option(None, "-o", help="输出路径"),
+    src: str = typer.Option("en", "-s", help="源语言"),
+    tgt: str = typer.Option("zh", "-t", help="目标语言"),
+    tokens: int = typer.Option(2000, "-m", help="最大token数"),
 ):
-    """Translate text or subtitle file from one language to another."""
-    # 设置模型提供商
-    settings.MODEL_PROVIDER = model.value
+    """翻译单个SRT文件"""
+    if not file.exists():
+        console.print(f"[bold red]错误:[/bold red] 文件{file}不存在")
+        raise typer.Exit(1)
 
-    # 获取源文本
-    if text:
-        source_text = text
-    elif file:
-        try:
-            source_text = await SubtitleService.read_file(str(file))
-        except Exception as e:
-            console.print(f"[bold red]Error reading file:[/] {e}")
-            raise typer.Exit(code=1)
-    else:
-        console.print("[bold yellow]Either --text or --file must be provided[/]")
-        raise typer.Exit(code=1)
+    if not out:
+        out = file.with_stem(f"{file.stem}_{tgt}")
 
-    # 创建翻译团队
-    team = TranslationTeam()
-
-    try:
-        # 显示进度
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[bold green]Translating..."),
-            console=console,
-        ) as progress:
-            progress.add_task("translate", total=None)
-            # 翻译文本
-            console.print(f"Translating from [bold]{source}[/] to [bold]{target}[/]...")
-            translated_text = await team.translate(source_text, source, target)
-
-        # 生成默认输出文件名
-        output_file = output
-        if not output_file and file:
-            # 从输入文件名生成输出文件名
-            file_name = file.stem
-            file_ext = file.suffix
-            output_file = Path(f"{file_name}_{target}{file_ext}")
-
-        # 输出结果
-        if output_file:
-            await SubtitleService.write_file(translated_text, str(output_file))
-            console.print(f"Translated text written to [bold cyan]{output_file}[/]")
-        else:
-            # 如果是文本输入而非文件输入，直接打印结果
-            console.print("\n[bold green]Translation Result:[/]")
-            console.print(translated_text)
-    except Exception as e:
-        console.print(f"[bold red]Translation error:[/] {e}")
-        raise typer.Exit(code=1)
+    console.print(f"[bold green]开始:[/bold green] {file} -> {out}")
+    asyncio.run(_trans_file(file, out, src, tgt, tokens))
 
 
-@app.command("batch")
-async def batch_translate(
-    input_dir: Path = typer.Option(
-        ..., "--input-dir", "-i", help="Directory containing input files"
-    ),
-    output_dir: Optional[Path] = typer.Option(
-        None,
-        "--output-dir",
-        "-o",
-        help="Directory for output files (default: same as input)",
-    ),
-    extension: str = typer.Option(
-        "srt", "--extension", "-e", help="File extension to process"
-    ),
-    recursive: bool = typer.Option(
-        False, "--recursive", "-r", help="Recursively process subdirectories"
-    ),
-    source: str = typer.Option("en", "--source", "-s", help="Source language code"),
-    target: str = typer.Option("zh", "--target", "-t", help="Target language code"),
-    model: ModelProvider = typer.Option(
-        ModelProvider.MISTRAL, "--model", "-m", help="Model provider to use"
-    ),
-    debug: bool = typer.Option(False, "--debug", "-d", help="Enable debug mode"),
-    test: bool = typer.Option(
-        False, "--test", help="Run in test mode (skips API calls)"
-    ),
-):
-    """Batch translate multiple subtitle files."""
-    # 设置模型提供商
-    settings.MODEL_PROVIDER = model.value
+async def _trans_file(in_path: Path, out_path: Path, src: str, tgt: str, tokens: int):
+    """处理单个文件"""
+    wf = SubtitleWorkflow(max_tokens=tokens)
 
-    # 验证输入目录
-    if not input_dir.is_dir():
-        console.print(f"[bold red]Input directory {input_dir} does not exist[/]")
-        raise typer.Exit(code=1)
-
-    # 设置输出目录
-    output_dir = output_dir or input_dir
-
-    # 创建输出目录（如果不存在）
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # 查找所有指定扩展名的文件
-    files = []
-    if recursive:
-        for file_path in input_dir.rglob(f"*.{extension}"):
-            if file_path.is_file():
-                files.append(file_path)
-    else:
-        files = list(input_dir.glob(f"*.{extension}"))
-
-    if not files:
-        console.print(
-            f"[bold yellow]No files with extension .{extension} found in {input_dir}[/]"
-            + (" (including subdirectories)" if recursive else "")
-        )
-        raise typer.Exit(code=1)
-
-    console.print(
-        f"Found [bold]{len(files)}[/] {extension} files in [bold]{input_dir}[/]"
-        + (" (including subdirectories)" if recursive else "")
-    )
-
-    # 创建翻译团队
-    team = TranslationTeam()
-
-    # 处理每个文件
     with Progress(
-        "[progress.description]{task.description}",
         SpinnerColumn(),
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        "({task.completed}/{task.total})",
+        TextColumn("[bold blue]{task.description}[/bold blue]"),
         console=console,
     ) as progress:
-        task = progress.add_task("[cyan]Translating files...", total=len(files))
+        task = progress.add_task("处理中", total=None)
 
-        for input_file in files:
-            # 生成输出文件路径
-            rel_path = input_file.relative_to(input_dir)
-            output_file = output_dir / f"{rel_path.stem}_{target}{rel_path.suffix}"
+        async for resp in wf.arun(
+            input_path=str(in_path),
+            output_path=str(out_path),
+            source_lang=src,
+            target_lang=tgt,
+        ):
+            if hasattr(resp, "content"):
+                progress.update(task, description=resp.content)
 
-            # 创建输出目录（如果不存在）
-            output_file.parent.mkdir(parents=True, exist_ok=True)
+            if hasattr(resp, "error") and resp.error:
+                console.print(f"[bold red]错误:[/bold red] {resp.error}")
+                raise typer.Exit(1)
 
-            progress.update(task, description=f"[cyan]Translating: {input_file.name}")
-
-            try:
-                # 读取源文本
-                source_text = await SubtitleService.read_file(str(input_file))
-
-                if not source_text.strip():
-                    console.print(
-                        f"[yellow]File {input_file} is empty or contains only whitespace. Skipping.[/]"
-                    )
-                    progress.update(task, advance=1)
-                    continue
-
-                # 翻译文本
-                translated_text = await team.translate(source_text, source, target)
-
-                # 将翻译后的文本写入输出文件
-                await SubtitleService.write_file(translated_text, str(output_file))
-
-            except asyncio.TimeoutError:
-                console.print(
-                    f"[bold red]Timeout translating {input_file}. Skipping.[/]"
-                )
-            except Exception as e:
-                console.print(f"[bold red]Error processing {input_file}: {str(e)}[/]")
-            finally:
-                progress.update(task, advance=1)
-
-    console.print(
-        f"[bold green]Batch translation completed. Output files saved with '_{target}' suffix.[/]"
-    )
+    console.print(f"[bold green]完成:[/bold green] {out_path}")
 
 
-@app.command("version")
-def version():
-    """Print the version of the Gnosis CLI."""
-    console.print(f"Gnosis version: {settings.PROJECT_NAME} v1.0.0")
+@app.command("dir")
+def trans_dir(
+    dir: Path = typer.Argument(..., help="SRT目录"),
+    out_dir: Optional[Path] = typer.Option(None, "-o", help="输出目录"),
+    src: str = typer.Option("en", "-s", help="源语言"),
+    tgt: str = typer.Option("zh", "-t", help="目标语言"),
+    rec: bool = typer.Option(False, "-r", help="递归处理"),
+    tokens: int = typer.Option(2000, "-m", help="最大token数"),
+):
+    """批量翻译目录下的SRT文件"""
+    if not dir.exists() or not dir.is_dir():
+        console.print(f"[bold red]错误:[/bold red] {dir}不存在或非目录")
+        raise typer.Exit(1)
+
+    if out_dir and not out_dir.exists():
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+    asyncio.run(_trans_dir(dir, out_dir, src, tgt, rec, tokens))
 
 
-def run():
-    """Run the CLI application."""
-    try:
-        # 注意：Typer 会自动处理异步命令
-        app()
-    except KeyboardInterrupt:
-        console.print("\n[yellow]Operation cancelled by user[/]")
-        raise typer.Exit(code=0)
-    except Exception as e:
-        console.print(f"[bold red]Error:[/] {e}")
-        raise typer.Exit(code=1)
+async def _trans_dir(
+    in_dir: Path, out_dir: Optional[Path], src: str, tgt: str, rec: bool, tokens: int
+):
+    """处理目录中的所有文件"""
+    pattern = "**/*.srt" if rec else "*.srt"
+    files = list(in_dir.glob(pattern))
+
+    if not files:
+        console.print(f"[bold yellow]警告:[/bold yellow] {in_dir}中无SRT文件")
+        return
+
+    console.print(f"[bold blue]找到{len(files)}个SRT文件[/bold blue]")
+
+    for i, in_file in enumerate(files, 1):
+        if out_dir:
+            rel_path = in_file.relative_to(in_dir)
+            out_file = out_dir / rel_path.with_stem(f"{rel_path.stem}_{tgt}")
+            out_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            out_file = in_file.with_stem(f"{in_file.stem}_{tgt}")
+
+        console.print(f"[{i}/{len(files)}] 处理: {in_file}")
+
+        try:
+            await _trans_file(
+                in_path=in_file, out_path=out_file, src=src, tgt=tgt, tokens=tokens
+            )
+        except Exception as e:
+            console.print(f"[bold red]错误:[/bold red] {in_file}: {str(e)}")
+
+    console.print(f"[bold green]全部完成![/bold green]")
 
 
 if __name__ == "__main__":
-    run()
+    app()
