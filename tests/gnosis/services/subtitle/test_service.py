@@ -6,12 +6,8 @@ from datetime import timedelta
 
 import pytest
 
-from gnosis.services.subtitle.parser import (
-    SRTParseError,
-    SrtParser,
-    Subtitle,
-    TimestampParseError,
-)
+from gnosis.services.subtitle.parser import (SRTParseError, SrtParser,
+                                             Subtitle, TimestampParseError)
 from gnosis.services.subtitle.service import SubtitleService
 
 

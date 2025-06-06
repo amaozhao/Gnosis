@@ -13,7 +13,8 @@ from gnosis.agents.segmenter import get_segmenter
 from gnosis.agents.translator import get_translator
 from gnosis.core.logger import get_logger
 from gnosis.services.subtitle import SubtitleService
-from gnosis.services.subtitle.parser import RGX_INDEX, RGX_TIMESTAMP, RGX_POSSIBLE_CRLF
+from gnosis.services.subtitle.parser import (RGX_INDEX, RGX_POSSIBLE_CRLF,
+                                             RGX_TIMESTAMP)
 
 logger = get_logger(__name__)
 

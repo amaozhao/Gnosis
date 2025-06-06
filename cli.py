@@ -14,6 +14,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from gnosis.agents.workflow import SubtitleWorkflow
+from gnosis.services.transcribe import Transcriber
 
 app = typer.Typer(help="Gnosis CLI - 字幕翻译工具")
 console = Console()
